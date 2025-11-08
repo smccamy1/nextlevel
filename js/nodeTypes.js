@@ -52,26 +52,6 @@ const NODE_TYPES = {
             { name: 'payload', label: 'Payload Data', type: 'textarea' }
         ]
     },
-    idvDataSim: {
-        name: 'IDV Data Simulation',
-        icon: '🔐',
-        color: '#e67e22',
-        category: 'input',
-        inputs: 0,
-        outputs: 1,
-        defaults: {
-            name: '',
-            includeGeoLocation: true,
-            includeDeviceInfo: true,
-            includeBehaviorMetrics: false
-        },
-        configFields: [
-            { name: 'name', label: 'Name', type: 'text' },
-            { name: 'includeGeoLocation', label: 'Include Geo Location', type: 'checkbox' },
-            { name: 'includeDeviceInfo', label: 'Include Device Info', type: 'checkbox' },
-            { name: 'includeBehaviorMetrics', label: 'Include Behavior Metrics', type: 'checkbox' }
-        ]
-    },
     function: {
         name: 'Function',
         icon: '⚙️',
@@ -119,28 +99,6 @@ const NODE_TYPES = {
         configFields: [
             { name: 'name', label: 'Name', type: 'text' },
             { name: 'property', label: 'Property', type: 'text' }
-        ]
-    },
-    idvToGraph: {
-        name: 'IDV to Graph',
-        icon: '🔀',
-        color: '#e74c3c',
-        category: 'function',
-        inputs: 1,
-        outputs: 1,
-        defaults: {
-            name: '',
-            nodeField: 'userId',
-            connectionStrategy: 'ip_similarity',
-            maxNodes: 50,
-            clearOnRestart: false
-        },
-        configFields: [
-            { name: 'name', label: 'Name', type: 'text' },
-            { name: 'nodeField', label: 'Node ID Field', type: 'select', options: ['userId', 'userName', 'sessionId'] },
-            { name: 'connectionStrategy', label: 'Connection Strategy', type: 'select', options: ['ip_similarity', 'time_proximity', 'geo_location', 'user_agent'] },
-            { name: 'maxNodes', label: 'Max Nodes', type: 'number' },
-            { name: 'clearOnRestart', label: 'Clear on Restart', type: 'checkbox' }
         ]
     },
     output: {
@@ -275,28 +233,6 @@ const NODE_TYPES = {
             { name: 'includeAttributes', label: 'Include Node Attributes', type: 'checkbox' }
         ]
     },
-    idvLoginViz: {
-        name: 'IDV Login Visualizer',
-        icon: '👤',
-        color: '#3498db',
-        category: 'output',
-        inputs: 1,
-        outputs: 0,
-        defaults: {
-            name: '',
-            maxEntries: 10,
-            showDeviceDetails: true,
-            showGeoLocation: true,
-            autoScroll: true
-        },
-        configFields: [
-            { name: 'name', label: 'Name', type: 'text' },
-            { name: 'maxEntries', label: 'Max Entries', type: 'number' },
-            { name: 'showDeviceDetails', label: 'Show Device Details', type: 'checkbox' },
-            { name: 'showGeoLocation', label: 'Show Geo Location', type: 'checkbox' },
-            { name: 'autoScroll', label: 'Auto Scroll', type: 'checkbox' }
-        ]
-    }
 };
 
 // Export for use in other modules

@@ -368,7 +368,7 @@ class FlowEditor {
         if (!this.dragState) return;
         
         // If we didn't move, this was a click
-        if (!this.dragState.hasMoved && (this.dragState.node.type === 'exampleData' || this.dragState.node.type === 'idvDataSim' || this.dragState.node.type === 'networkDataSim')) {
+        if (!this.dragState.hasMoved && (this.dragState.node.type === 'exampleData'  || this.dragState.node.type === 'networkDataSim')) {
             this.executeNode(this.dragState.node);
         }
         
@@ -816,9 +816,6 @@ class FlowEditor {
         
         if (node.type === 'exampleData') {
             this.executeExampleDataNode(node);
-        } else if (node.type === 'idvDataSim') {
-            this.executeIdvDataSimNode(node);
-        } else if (node.type === 'networkDataSim') {
             this.executeNetworkDataSimNode(node);
         }
     }
@@ -870,106 +867,7 @@ class FlowEditor {
         }
     }
 
-    executeIdvDataSimNode(node) {
-        try {
-            // Generate randomized IDV/login data
-            const payload = this.generateIdvLoginData(node.config);
 
-            const message = {
-                payload: payload,
-                topic: 'idv-login-simulation',
-                timestamp: new Date().toISOString(),
-                _msgid: this.generateMessageId()
-            };
-
-            // Visual feedback - flash the node
-            this.flashNode(node);
-
-            // Send message to connected nodes
-            this.sendMessage(node, message);
-
-            console.log(`IDV Data Simulation node "${node.config.name || node.id}" executed - sending login data to connected nodes`);
-
-        } catch (error) {
-            console.error(`Error executing IDV data simulation node ${node.id}:`, error);
-            this.showExecutionError(node, error.message);
-        }
-    }
-
-    generateIdvLoginData(config) {
-        // Sample data arrays for randomization
-        const userAgents = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
-            'Mozilla/5.0 (Android 14; Mobile; rv:121.0) Gecko/121.0 Firefox/121.0',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0'
-        ];
-
-        const cities = ['New York', 'London', 'Tokyo', 'Sydney', 'Toronto', 'Berlin', 'Singapore', 'Mumbai', 'São Paulo', 'Moscow'];
-        const countries = ['US', 'GB', 'JP', 'AU', 'CA', 'DE', 'SG', 'IN', 'BR', 'RU'];
-        const firstNames = ['John', 'Sarah', 'Michael', 'Emma', 'David', 'Lisa', 'James', 'Maria', 'Robert', 'Anna'];
-        const lastNames = ['Smith', 'Johnson', 'Brown', 'Davis', 'Wilson', 'Anderson', 'Taylor', 'Thomas', 'Jackson', 'White'];
-        const loginResults = ['SUCCESS', 'FAILED', 'BLOCKED', 'SUSPICIOUS'];
-
-        // Generate random IP address
-        const generateIp = () => `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-        
-        // Generate random coordinates
-        const generateCoords = () => ({
-            latitude: (Math.random() * 180 - 90).toFixed(6),
-            longitude: (Math.random() * 360 - 180).toFixed(6)
-        });
-
-        const loginData = {
-            sessionId: Math.random().toString(36).substring(2, 15),
-            userId: firstNames[Math.floor(Math.random() * firstNames.length)].toLowerCase() + Math.floor(Math.random() * 1000),
-            userName: firstNames[Math.floor(Math.random() * firstNames.length)] + ' ' + lastNames[Math.floor(Math.random() * lastNames.length)],
-            loginResult: loginResults[Math.floor(Math.random() * loginResults.length)],
-            timestamp: new Date().toISOString(),
-            ipAddress: generateIp(),
-            userAgent: userAgents[Math.floor(Math.random() * userAgents.length)],
-            loginDuration: Math.floor(Math.random() * 5000) + 500 // 500ms to 5.5s
-        };
-
-        // Add geo location data if enabled
-        if (config.includeGeoLocation) {
-            const coords = generateCoords();
-            const cityIndex = Math.floor(Math.random() * cities.length);
-            loginData.geoLocation = {
-                city: cities[cityIndex],
-                country: countries[cityIndex],
-                latitude: parseFloat(coords.latitude),
-                longitude: parseFloat(coords.longitude),
-                timezone: `GMT${Math.random() > 0.5 ? '+' : '-'}${Math.floor(Math.random() * 12)}`
-            };
-        }
-
-        // Add device information if enabled
-        if (config.includeDeviceInfo) {
-            loginData.deviceInfo = {
-                platform: Math.random() > 0.5 ? 'desktop' : 'mobile',
-                os: ['Windows 10', 'macOS', 'iOS', 'Android', 'Linux'][Math.floor(Math.random() * 5)],
-                browser: ['Chrome', 'Safari', 'Firefox', 'Edge'][Math.floor(Math.random() * 4)],
-                screenResolution: ['1920x1080', '1366x768', '375x812', '414x896'][Math.floor(Math.random() * 4)],
-                language: ['en-US', 'en-GB', 'es-ES', 'fr-FR', 'de-DE'][Math.floor(Math.random() * 5)]
-            };
-        }
-
-        // Add behavior metrics if enabled
-        if (config.includeBehaviorMetrics) {
-            loginData.behaviorMetrics = {
-                keystrokeDynamics: Math.random().toFixed(3),
-                mouseMovementPattern: Math.floor(Math.random() * 100),
-                typingSpeed: Math.floor(Math.random() * 100) + 20, // 20-120 WPM
-                sessionFrequency: Math.floor(Math.random() * 10) + 1,
-                riskScore: Math.floor(Math.random() * 100),
-                previousLoginAttempts: Math.floor(Math.random() * 5)
-            };
-        }
-
-        return loginData;
-    }
 
     executeNetworkDataSimNode(node) {
         try {
@@ -1191,13 +1089,6 @@ class FlowEditor {
             case 'graphViz':
                 this.executeGraphVizNode(node, message);
                 break;
-            case 'idvToGraph':
-                this.executeIdvToGraphNode(node, message);
-                break;
-            case 'idvLoginViz':
-                console.log('Executing IDV Login Visualizer node with message:', message);
-                this.executeIdvLoginVizNode(node, message);
-                break;
             default:
                 console.log(`Node ${node.id} (${node.type}) received message but no handler defined`);
         }
@@ -1272,138 +1163,7 @@ class FlowEditor {
         }
     }
 
-    executeIdvToGraphNode(node, message) {
-        try {
-            const nodeName = node.config.name || node.id;
-            console.log(`🔀 IDV to Graph node "${nodeName}" transforming data...`);
-            
-            // Get configuration
-            const nodeField = node.config.nodeField || 'userId';
-            const connectionStrategy = node.config.connectionStrategy || 'ip_similarity';
-            const maxNodes = parseInt(node.config.maxNodes) || 50;
-            const clearOnRestart = node.config.clearOnRestart || false;
-            
-            // Initialize accumulated data if it doesn't exist or if clearing on restart
-            if (!node.accumulatedData || clearOnRestart) {
-                node.accumulatedData = [];
-            }
-            
-            // Add new IDV data to accumulated data
-            const newIdvData = message.payload;
-            if (newIdvData) {
-                node.accumulatedData.push(newIdvData);
-                
-                // Limit the number of accumulated records
-                if (node.accumulatedData.length > maxNodes) {
-                    node.accumulatedData = node.accumulatedData.slice(-maxNodes);
-                }
-            }
-            
-            // Transform IDV data into graph format
-            const graphData = this.transformIdvToGraph(node.accumulatedData, nodeField, connectionStrategy);
-            
-            console.log(`🔀 IDV to Graph node "${nodeName}" transformed ${node.accumulatedData.length} IDV records into ${graphData.nodes.length} nodes and ${graphData.edges.length} edges`);
-            
-            // Create message with graph data
-            const outputMessage = {
-                payload: graphData,
-                topic: 'idv-graph-transformation',
-                timestamp: new Date().toISOString(),
-                _msgid: this.generateMessageId(),
-                originalCount: node.accumulatedData.length
-            };
-            
-            // Send to connected nodes
-            this.sendMessage(node, outputMessage);
-            
-        } catch (error) {
-            console.error(`❌ IDV to Graph node "${node.config.name || node.id}" error:`, error);
-        }
-    }
 
-    transformIdvToGraph(idvDataArray, nodeField, connectionStrategy) {
-        const nodes = [];
-        const edges = [];
-        const nodeMap = new Map();
-        
-        // Create nodes from IDV data
-        idvDataArray.forEach((idvData, index) => {
-            const nodeId = idvData[nodeField] || `unknown_${index}`;
-            
-            if (!nodeMap.has(nodeId)) {
-                const node = {
-                    id: nodeId,
-                    label: idvData.userName || idvData.userId || nodeId,
-                    type: 'user',
-                    loginResult: idvData.loginResult,
-                    firstSeen: idvData.timestamp,
-                    lastSeen: idvData.timestamp,
-                    loginCount: 1,
-                    ipAddresses: [idvData.ipAddress],
-                    locations: [],
-                    userAgents: [idvData.userAgent]
-                };
-                
-                // Add geo location if available
-                if (idvData.geoLocation) {
-                    node.locations.push(idvData.geoLocation);
-                    node.city = idvData.geoLocation.city;
-                    node.country = idvData.geoLocation.country;
-                }
-                
-                // Add device info if available
-                if (idvData.deviceInfo) {
-                    node.platform = idvData.deviceInfo.platform;
-                    node.os = idvData.deviceInfo.os;
-                    node.browser = idvData.deviceInfo.browser;
-                }
-                
-                // Add behavior metrics if available
-                if (idvData.behaviorMetrics) {
-                    node.riskScore = idvData.behaviorMetrics.riskScore;
-                    node.typingSpeed = idvData.behaviorMetrics.typingSpeed;
-                }
-                
-                nodes.push(node);
-                nodeMap.set(nodeId, node);
-            } else {
-                // Update existing node with new data
-                const existingNode = nodeMap.get(nodeId);
-                existingNode.lastSeen = idvData.timestamp;
-                existingNode.loginCount++;
-                
-                // Add unique IP addresses
-                if (!existingNode.ipAddresses.includes(idvData.ipAddress)) {
-                    existingNode.ipAddresses.push(idvData.ipAddress);
-                }
-                
-                // Add unique user agents
-                if (!existingNode.userAgents.includes(idvData.userAgent)) {
-                    existingNode.userAgents.push(idvData.userAgent);
-                }
-                
-                // Add geo locations
-                if (idvData.geoLocation && !existingNode.locations.some(loc => 
-                    loc.city === idvData.geoLocation.city && loc.country === idvData.geoLocation.country)) {
-                    existingNode.locations.push(idvData.geoLocation);
-                }
-            }
-        });
-        
-        // Create edges based on connection strategy
-        this.createConnectionsBasedOnStrategy(nodes, edges, connectionStrategy);
-        
-        return {
-            nodes,
-            edges,
-            metadata: {
-                connectionStrategy,
-                totalIdvRecords: idvDataArray.length,
-                uniqueUsers: nodes.length,
-                generated: new Date().toISOString()
-            }
-        };
-    }
 
     createConnectionsBasedOnStrategy(nodes, edges, strategy) {
         const usedPairs = new Set();
@@ -1485,153 +1245,8 @@ class FlowEditor {
         }
     }
 
-    executeIdvLoginVizNode(node, message) {
-        try {
-            const nodeName = node.config.name || node.id;
-            console.log(`👤 IDV Login Visualizer node "${nodeName}" rendering login data...`);
-            
-            // Get configuration
-            const maxEntries = parseInt(node.config.maxEntries) || 10;
-            const showDeviceDetails = node.config.showDeviceDetails !== false;
-            const showGeoLocation = node.config.showGeoLocation !== false;
-            const autoScroll = node.config.autoScroll !== false;
-            
-            // Initialize login history if it doesn't exist
-            if (!node.loginHistory) {
-                node.loginHistory = [];
-            }
-            
-            // Add new login data
-            const loginData = message.payload;
-            if (loginData) {
-                node.loginHistory.unshift(loginData); // Add to beginning
-                
-                // Limit history size
-                if (node.loginHistory.length > maxEntries) {
-                    node.loginHistory = node.loginHistory.slice(0, maxEntries);
-                }
-            }
-            
-            // Remove existing visualization
-            this.removeIdvLoginVisualization(node.id);
-            
-            // Create new visualization
-            console.log('🚨 About to call createIdvLoginVisualization');
-            this.createIdvLoginVisualization(node);
-            console.log('🚨 Finished calling createIdvLoginVisualization');
-            
-            console.log(`✅ IDV Login Visualizer node "${nodeName}" updated with ${node.loginHistory.length} login entries`);
-            
-        } catch (error) {
-            console.error(`❌ IDV Login Visualizer node "${node.config.name || node.id}" error:`, error);
-            console.error('Error stack:', error.stack);
-        }
-    }
 
-    removeIdvLoginVisualization(nodeId) {
-        const existingViz = document.getElementById(`idv-login-viz-${nodeId}`);
-        if (existingViz) {
-            existingViz.remove();
-        }
-    }
 
-    createIdvLoginVisualization(node) {
-        // Use the node.element directly since that's what the createNode method sets
-        const nodeElement = node.element;
-        
-        if (!nodeElement || !node.loginHistory || node.loginHistory.length === 0) {
-            return;
-        }
-        
-        // Calculate position beside the IDV Login Visualizer node
-        const svgRect = this.svg.getBoundingClientRect();
-        
-        // Position the visualization to the right of the IDV Login Visualizer node
-        const absoluteX = svgRect.left + node.x + node.width + 20; // 20px gap from node
-        const absoluteY = svgRect.top + node.y;
-        
-        console.log('Creating visualization beside node at:', absoluteX, absoluteY);
-        console.log('Node position:', node.x, node.y, 'Node dimensions:', node.width, node.height);
-        
-        // Create visualization container
-        const vizContainer = document.createElement('div');
-        vizContainer.id = `idv-login-viz-${node.id}`;
-        vizContainer.className = 'idv-login-visualization';
-        vizContainer.style.cssText = `
-            position: fixed !important;
-            top: ${absoluteY}px !important;
-            left: ${absoluteX}px !important;
-            width: 400px !important;
-            height: 300px !important;
-            background: white !important;
-            border: 3px solid #3498db !important;
-            border-radius: 8px !important;
-            padding: 15px !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
-            z-index: 999999 !important;
-            overflow-y: auto !important;
-            font-family: Arial, sans-serif !important;
-            display: block !important;
-            visibility: visible !important;
-        `;
-        
-        // Create header
-        const header = document.createElement('div');
-        header.style.cssText = `
-            font-weight: bold;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #3498db;
-            color: #2c3e50;
-            font-size: 16px;
-        `;
-        header.textContent = `IDV Login Activity (${node.loginHistory.length} entries)`;
-        vizContainer.appendChild(header);
-        
-        // Create login entries
-        node.loginHistory.forEach((login, index) => {
-            const entryDiv = this.createLoginEntry(login, index, node.config);
-            vizContainer.appendChild(entryDiv);
-        });
-        
-        // Add close button
-        const closeBtn = document.createElement('button');
-        closeBtn.textContent = '×';
-        closeBtn.style.cssText = `
-            position: absolute;
-            top: 5px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #7f8c8d;
-            padding: 0;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        `;
-        closeBtn.onclick = () => this.removeIdvLoginVisualization(node.id);
-        vizContainer.appendChild(closeBtn);
-        
-        // Append to document body
-        console.log('About to append container to body...');
-        document.body.appendChild(vizContainer);
-        console.log('Container appended. ID:', vizContainer.id);
-        
-        // Double-check it was added
-        const check = document.getElementById(`idv-login-viz-${node.id}`);
-        console.log('Verification check:', check ? 'FOUND' : 'NOT FOUND');
-        
-        // Auto-scroll to top if enabled
-        if (node.config.autoScroll !== false) {
-            vizContainer.scrollTop = 0;
-        }
-        
-        console.log('Visualization creation complete');
-    }
 
     createLoginEntry(login, index, config) {
         const entryDiv = document.createElement('div');

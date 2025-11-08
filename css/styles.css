@@ -305,16 +305,7 @@ body {
     stroke-width: 2;
 }
 
-.node-idvDataSim {
-    fill: #e67e22;
-    cursor: pointer;
-}
 
-.node-idvDataSim:hover {
-    fill: #d35400;
-    stroke: #fff;
-    stroke-width: 2;
-}
 
 .node-function {
     fill: #7b68ee;
