@@ -1,4 +1,4 @@
-# NextLext Visual Flow Editor
+# NextLevel Visual Flow Editor
 
 A Node-RED inspired visual flow editor built with HTML5, CSS3, and vanilla JavaScript. This project provides a drag-and-drop interface for creating visual workflows with connected nodes.
 
